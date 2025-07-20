@@ -1,0 +1,18 @@
+# Sign Language Learning App Environment Variables
+
+# Flask Secret Key (generate a secure random key)
+SECRET_KEY=your-secret-key-here
+
+# Google Gemini AI API Key
+# Get your API key from: https://makersuite.google.com/app/apikey
+GEMINI_API_KEY=your-gemini-api-key-here
+
+# Firebase Configuration
+# Download your Firebase service account key from Firebase Console
+# and save it as 'firebase-credentials.json' in the project root
+
+# Optional: Database URL (if using different database)
+DATABASE_URL=your-database-url-here
+
+# Optional: Debug mode
+DEBUG=True 
