@@ -49,9 +49,9 @@ def check_environment():
     
     # Check Firebase credentials
     if not os.path.exists('firebase-credentials.json'):
-        print("⚠️  firebase-credentials.json not found")
-        print("   Please download from Firebase Console")
-        print("   The app will run in demo mode without Firebase")
+        print("ℹ️  firebase-credentials.json not found")
+        print("   ✅ Switching to OFFLINE MODE (using SQLite local database)")
+        print("   Use this mode if you don't have Firebase set up.")
     
     return True
 

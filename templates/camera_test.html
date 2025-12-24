@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Test - Sign Language Learning</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .camera-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .video-feed {
+            width: 100%;
+            max-width: 640px;
+            height: 480px;
+            background: #000;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: block;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .info-box {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .info-box h3 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+        
+        .info-box ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .info-box li {
+            margin: 8px 0;
+        }
+        
+        .error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+            color: #ffebee;
+        }
+        
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            color: #e8f5e8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 Camera Test</h1>
+        <p class="subtitle">Test your camera and hand tracking for Sign Language Learning</p>
+        
+        <div class="camera-container">
+            <h2>📹 Live Camera Feed</h2>
+            <img id="videoFeed" class="video-feed" src="" alt="Camera feed will appear here">
+            
+            <div class="controls">
+                <button id="startBtn" class="btn btn-primary" onclick="startCamera()">
+                    🚀 Start Camera
+                </button>
+                <button id="stopBtn" class="btn btn-danger" onclick="stopCamera()" disabled>
+                    ⏹️ Stop Camera
+                </button>
+            </div>
+            
+            <div id="status" class="status">
+                Status: Camera not started
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h3>📋 What This Test Does:</h3>
+            <ul>
+                <li>✅ Opens your webcam and displays live feed</li>
+                <li>✅ Detects hands in real-time using AI</li>
+                <li>✅ Shows hand landmarks and finger positions</li>
+                <li>✅ Displays finger count and hand type</li>
+                <li>✅ Tests camera compatibility for the main app</li>
+            </ul>
+        </div>
+        
+        <div class="info-box">
+            <h3>🔧 Troubleshooting:</h3>
+            <ul>
+                <li>📱 Allow camera access when prompted by your browser</li>
+                <li>💡 Ensure good lighting for better hand detection</li>
+                <li>🖐️ Show your hand clearly to the camera</li>
+                <li>🔄 If camera doesn't work, try refreshing the page</li>
+                <li>🌐 Make sure you're using HTTPS or localhost</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let cameraActive = false;
+        
+        async function startCamera() {
+            try {
+                const response = await fetch('/start_camera');
+                const data = await response.json();
+                
+                if (data.success) {
+                    cameraActive = true;
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = false;
+                    document.getElementById('status').innerHTML = 'Status: Camera started successfully';
+                    document.getElementById('status').className = 'status success';
+                    
+                    // Start video feed
+                    document.getElementById('videoFeed').src = '/video_feed';
+                    
+                    // Update status periodically
+                    updateCameraStatus();
+                } else {
+                    document.getElementById('status').innerHTML = `Status: ${data.message}`;
+                    document.getElementById('status').className = 'status error';
+                }
+            } catch (error) {
+                document.getElementById('status').innerHTML = `Status: Error starting camera - ${error.message}`;
+                document.getElementById('status').className = 'status error';
+            }
+        }
+        
+        async function stopCamera() {
+            try {
+                const response = await fetch('/stop_camera');
+                const data = await response.json();
+                
+                if (data.success) {
+                    cameraActive = false;
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = true;
+                    document.getElementById('status').innerHTML = 'Status: Camera stopped';
+                    document.getElementById('status').className = 'status';
+                    
+                    // Stop video feed
+                    document.getElementById('videoFeed').src = '';
+                }
+            } catch (error) {
+                document.getElementById('status').innerHTML = `Status: Error stopping camera - ${error.message}`;
+                document.getElementById('status').className = 'status error';
+            }
+        }
+        
+        async function updateCameraStatus() {
+            if (!cameraActive) return;
+            
+            try {
+                const response = await fetch('/camera_status');
+                const data = await response.json();
+                
+                if (data.opened && data.active) {
+                    document.getElementById('status').innerHTML = 
+                        `Status: Camera active - Resolution: ${data.width}x${data.height}`;
+                    document.getElementById('status').className = 'status success';
+                } else {
+                    document.getElementById('status').innerHTML = 'Status: Camera not responding';
+                    document.getElementById('status').className = 'status error';
+                }
+            } catch (error) {
+                document.getElementById('status').innerHTML = 'Status: Error checking camera status';
+                document.getElementById('status').className = 'status error';
+            }
+            
+            // Update every 2 seconds
+            setTimeout(updateCameraStatus, 2000);
+        }
+        
+        // Check initial camera status
+        window.onload = function() {
+            updateCameraStatus();
+        };
+    </script>
+</body>
+</html>

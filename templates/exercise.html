@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -47,7 +48,7 @@
             background: white;
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
 
@@ -63,7 +64,7 @@
             width: 100%;
             height: auto;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             display: block;
         }
 
@@ -71,7 +72,7 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             color: white;
             padding: 10px 15px;
             border-radius: 10px;
@@ -115,7 +116,7 @@
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .btn:disabled {
@@ -128,7 +129,7 @@
             background: white;
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
         .exercise-info {
@@ -312,7 +313,7 @@
             position: fixed;
             top: 20px;
             left: 20px;
-            background: rgba(255,255,255,0.9);
+            background: rgba(255, 255, 255, 0.9);
             border: none;
             border-radius: 50%;
             width: 50px;
@@ -320,12 +321,12 @@
             font-size: 1.2rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
         .back-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
 
         .feedback-message {
@@ -368,17 +369,18 @@
             .header h1 {
                 font-size: 2rem;
             }
-            
+
             .exercise-target {
                 font-size: 2rem;
             }
-            
+
             .controls {
                 flex-direction: column;
             }
         }
     </style>
 </head>
+
 <body>
     <button class="back-btn" onclick="goBack()">
         <i class="fas fa-arrow-left"></i>
@@ -392,17 +394,18 @@
         <div class="exercise-container">
             <div class="camera-section">
                 <div class="video-container">
-                    <video id="video" autoplay muted playsinline></video>
+                    <img id="video" src="/simple_video"
+                        style="width: 100%; height: auto; border-radius: 15px; display: block;">
                     <div class="camera-overlay">
                         <i class="fas fa-camera"></i> <span id="cameraStatus">Camera Inactive</span>
                     </div>
                 </div>
-                
+
                 <div id="cameraError" class="camera-error" style="display: none;">
                     <i class="fas fa-exclamation-triangle"></i>
                     <p>Camera access denied or not available. Please allow camera access and refresh the page.</p>
                 </div>
-                
+
                 <div class="controls">
                     <button class="btn btn-primary" id="startBtn">
                         <i class="fas fa-play"></i> Start Exercise
@@ -492,9 +495,9 @@
                 startBtn.disabled = true;
                 stopBtn.disabled = false;
                 captureBtn.disabled = false;
-                
+
                 showFeedback('Starting exercise...', 'info');
-                
+
                 // Start backend camera and get exercise
                 const response = await fetch('/api/start-exercise', {
                     method: 'POST',
@@ -505,7 +508,7 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (!data.success) {
                     throw new Error('Backend camera failed to start: ' + data.error);
                 }
@@ -526,26 +529,24 @@
                 });
 
                 const trackingData = await trackingResponse.json();
-                
+
                 if (!trackingData.success) {
                     console.warn('Hand tracking warning: ' + trackingData.error);
                 }
 
-                // Use the video stream from backend
-                video.src = '/simple_video';
-                video.style.background = 'none';
+                // Refresh image source to restart stream if needed
+                video.src = '/simple_video?' + new Date().getTime();
                 video.style.display = 'block';
-                video.innerHTML = '';
-                
+
                 updateStatus('Camera active - Show your hand', true);
                 cameraStatus.textContent = 'Camera Active';
                 cameraError.style.display = 'none';
-                
+
                 // Start real-time hand tracking
                 startRealHandTracking();
-                
+
                 showFeedback('Exercise started! Show your hand to the camera.', 'success');
-                
+
             } catch (error) {
                 console.error('Exercise error:', error);
                 isExerciseActive = false;
@@ -564,12 +565,12 @@
                         'Content-Type': 'application/json',
                     }
                 });
-                
+
                 isExerciseActive = false;
                 startBtn.disabled = false;
                 stopBtn.disabled = true;
                 captureBtn.disabled = true;
-                
+
                 updateStatus('Exercise stopped', false);
                 cameraStatus.textContent = 'Camera Inactive';
                 showFeedback('Exercise stopped', 'info');
@@ -581,11 +582,11 @@
         // Update exercise display
         function updateExerciseDisplay() {
             if (!currentExercise) return;
-            
+
             exerciseType.textContent = currentExercise.type.toUpperCase();
             exerciseTarget.textContent = currentExercise.target;
             exerciseDescription.textContent = currentExercise.description;
-            
+
             if (currentExercise.type === 'word_building') {
                 wordBuildingSection.style.display = 'block';
                 wordDisplay.textContent = currentExercise.target;
@@ -598,33 +599,33 @@
         // Update letter grid
         function updateLetterGrid() {
             if (!currentExercise || currentExercise.type !== 'word_building') return;
-            
+
             const letters = currentExercise.letters || [];
             letterGrid.innerHTML = '';
-            
+
             letters.forEach((letter, index) => {
                 const letterBox = document.createElement('div');
                 letterBox.className = 'letter-box';
                 letterBox.textContent = letter;
-                
+
                 if (currentLetters.includes(letter)) {
                     letterBox.classList.add('completed');
                 }
-                
+
                 letterGrid.appendChild(letterBox);
             });
-            
+
             wordProgress.textContent = `${currentLetters.length} / ${letters.length} letters completed`;
         }
 
         // Update progress display
         function updateProgressDisplay() {
             if (!userProgress) return;
-            
+
             const completed = userProgress.completed_exercises || [];
             const totalExercises = 3; // Initial exercises
             const progress = Math.min((completed.length / totalExercises) * 100, 100);
-            
+
             progressFill.style.width = progress + '%';
             progressText.textContent = `Level: ${userProgress.level || 'beginner'} | ${completed.length} exercises completed`;
         }
@@ -632,14 +633,14 @@
         // Start real-time hand tracking
         function startRealHandTracking() {
             if (!isExerciseActive) return;
-            
+
             realTimeHandTracking();
         }
 
         // Real-time hand tracking
         async function realTimeHandTracking() {
             if (!isExerciseActive) return;
-            
+
             try {
                 const response = await fetch('/api/hand-tracking', {
                     method: 'POST',
@@ -650,7 +651,7 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     const fingers = data.fingers;
                     const recognizedSign = data.recognized_sign;
@@ -660,20 +661,20 @@
                     const completedText = data.completed_text;
                     const stableCount = data.stable_count;
                     const cooldownRemaining = data.cooldown_remaining;
-                    
+
                     // Update finger pattern display
                     fingerPattern.textContent = JSON.stringify(fingers);
-                    
+
                     // Update word building display
                     updateWordBuildingDisplay(currentWord, completedText, stableCount, cooldownRemaining);
-                    
+
                     // Update status
                     if (handDetected) {
                         if (recognizedSign && recognizedSign !== "Unknown") {
                             if (stable) {
                                 updateStatus(`Stable: ${recognizedSign}`, true);
                                 showFeedback(`✅ ${recognizedSign} recognized!`, 'success');
-                                
+
                                 // Check if word matches target
                                 if (currentExercise && currentExercise.type === 'word_building') {
                                     checkWordMatch(currentWord, currentExercise.target);
@@ -690,10 +691,10 @@
                 } else {
                     console.error('Hand tracking error:', data.error);
                 }
-                
+
                 // Continue tracking
                 setTimeout(realTimeHandTracking, 100); // 10 FPS
-                
+
             } catch (error) {
                 console.error('Hand tracking error:', error);
                 // Continue tracking even if there's an error
@@ -706,21 +707,21 @@
             if (currentExercise && currentExercise.type === 'word_building') {
                 wordBuildingSection.style.display = 'block';
                 wordDisplay.textContent = currentExercise.target;
-                
+
                 // Update letter grid
                 updateLetterGridForWord(currentWord, currentExercise.target);
-                
+
                 // Update progress
                 wordProgress.textContent = `${currentWord.length} / ${currentExercise.target.length} letters`;
             } else {
                 wordBuildingSection.style.display = 'none';
             }
-            
+
             // Update stability indicator
             if (stabilityText) {
                 stabilityText.textContent = `Stability: ${stableCount}/15`;
             }
-            
+
             // Update cooldown indicator
             if (cooldownText && cooldownRemaining > 0) {
                 cooldownText.textContent = `Cooldown: ${cooldownRemaining.toFixed(1)}s`;
@@ -733,11 +734,11 @@
         // Update letter grid for word
         function updateLetterGridForWord(currentWord, targetWord) {
             letterGrid.innerHTML = '';
-            
+
             for (let i = 0; i < targetWord.length; i++) {
                 const letterBox = document.createElement('div');
                 letterBox.className = 'letter-box';
-                
+
                 if (i < currentWord.length) {
                     if (currentWord[i] === targetWord[i]) {
                         letterBox.textContent = currentWord[i];
@@ -751,7 +752,7 @@
                 } else {
                     letterBox.textContent = targetWord[i];
                 }
-                
+
                 letterGrid.appendChild(letterBox);
             }
         }
@@ -770,7 +771,7 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success && data.match) {
                     showFeedback(data.message, 'success');
                     setTimeout(() => {
@@ -794,12 +795,12 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     currentExercise = data.exercise;
                     userProgress = data.user_progress;
                     currentLetters = [];
-                    
+
                     updateExerciseDisplay();
                     updateProgressDisplay();
                     showFeedback('New exercise loaded!', 'success');
@@ -820,7 +821,7 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     showFeedback('Word reset successfully!', 'success');
                 } else {
@@ -842,7 +843,7 @@
             feedbackMessage.textContent = message;
             feedbackMessage.className = `feedback-message ${type}`;
             feedbackMessage.style.display = 'block';
-            
+
             setTimeout(() => {
                 feedbackMessage.style.display = 'none';
             }, 4000);
@@ -871,7 +872,7 @@
         // Initialize page on load
         document.addEventListener('DOMContentLoaded', () => {
             showFeedback('Click "Start Exercise" to begin with AI-generated exercises!', 'info');
-            
+
             // Load initial user progress
             loadUserProgress();
         });
@@ -881,7 +882,7 @@
             try {
                 const response = await fetch('/api/user-progress/current');
                 const data = await response.json();
-                
+
                 if (data.success) {
                     userProgress = data.progress;
                     updateProgressDisplay();
@@ -892,4 +893,5 @@
         }
     </script>
 </body>
+
 </html>
